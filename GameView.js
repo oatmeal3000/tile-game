@@ -9,6 +9,16 @@ var GameView = (function () {
     "RampE": "Ramp%20West",
     "RampS": "Ramp%20North",
     "RampW": "Ramp%20East",
+
+    "RoofNorth": "Roof%20South",
+    "RoofSouth": "Roof%20North",
+    "RoofEast": "Roof%20West",
+    "RoofWest": "Roof%20East",
+    "RoofNorthEast": "Roof%20South%20West",
+    "RoofNorthWest": "Roof%20South%20East",
+    "RoofSouthEast": "Roof%20North%20West",
+    "RoofSouthWest": "Roof%20North%20East",
+
     "Player": "Character%20Boy",
     "PlayerWon": "Character%20Boy",
     "Water": "Water%20Block",
@@ -19,7 +29,8 @@ var GameView = (function () {
     "GemWall1": "Block%20Blue",
     "GemWall2": "Block%20Green",
     "GemWall3": "Block%20Orange",
-    "Exit": "Selector"
+    "Exit": "Selector",
+    "Empty": "Empty"
   };
 
   function toPx(cssLength) {
@@ -133,8 +144,9 @@ var GameView = (function () {
     
     // Update an arbitrary tile element from tile (used for inventory and world)
     function updateImage(tileElem, tile) {
-      tileElem.style.visibility = (tile === Tile.Empty) ? "hidden" : "visible";
-      var image = tileToImage[tile.name] || "Rock";
+      tileElem.style.visibility = (tile.name === "Empty") ? "hidden" : "visible";
+    // var image = tileToImage[tile.name] || "Rock";
+      var image = tileToImage[tile.name];  
       tileElem.src = "resources/"+image+".png";
     }
     
@@ -157,7 +169,7 @@ var GameView = (function () {
       var tile = world.get(pos);          
       var tileElem = tileElems[x*world.yw*world.zw + y*world.zw + z];
       
-      if (tile == Tile.Player || tile == Tile.PlayerWon) {
+      if (tile.toString() == "Tile.Player" || tile.toString() == "Tile.PlayerWon") {
         playerPos = pos;
         scroll();
       }
@@ -284,7 +296,7 @@ var GameView = (function () {
           tileElem.style.top = vp.y + "px";
           
           var tile = world.get(pos);
-          if (tile == Tile.Player || tile == Tile.PlayerWon) {
+          if (tile.toString() == "Tile.Player" || tile.toString() == "Tile.PlayerWon") {
             playerPos = animPos;
             scroll();
           }

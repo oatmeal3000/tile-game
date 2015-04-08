@@ -52,6 +52,9 @@ function World(xw, yw, zw, array, playerPos) {
     dump: function () {
       return "new World("+xw+","+yw+","+zw+",["+array+"],"+playerPos.dump()+")";
     },
+    getTileArray: function () {
+      return array;
+    },
     addChangeListener: function (l) {
       changeListeners.push(l);
     }

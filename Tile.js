@@ -10,7 +10,7 @@ var Tile;
     return {
       name: name,
       canOccupy: function () {
-        return this === Tile.Empty || this.isTakeable() || this.isWater();
+        return this.toString() === "Tile.Empty" || this.isTakeable() || this.isWater() ;
       },
       gem: function () { return props.gem; },
       gemToWall: props.gemToWall,
@@ -33,7 +33,7 @@ var Tile;
 
   Tile = {
     // Empty space to walk through
-    Empty: _Tile("Empty", {anyFloodable:true}),
+    Empty: _Tile("Empty", {anyFloodable:true,shadow:false}),
 
     // Plain walls/surfaces
     Block: _Tile("Block", {shadow:true}),
@@ -51,9 +51,19 @@ var Tile;
     RampS: _Tile("RampS", {rampdir: South,shadow:false}),
     RampW: _Tile("RampW", {rampdir: West,shadow:false}),
 
+    RoofNorth: _Tile("RoofNorth", {rampdir: North,shadow:false}),
+    RoofSouth: _Tile("RoofSouth", {rampdir: South,shadow:false}),
+    RoofEast: _Tile("RoofEast", {rampdir: East,shadow:false}),
+    RoofWest: _Tile("RoofWest", {rampdir: West,shadow:false}),
+    RoofNorthEast: _Tile("RoofNorthEast", {rampdir: North.add(East),shadow:false}),
+    RoofNorthWest: _Tile("RoofNorthWest", {rampdir: North.add(West),shadow:false}),
+    RoofSouthEast: _Tile("RoofSouthEast", {rampdir: South.add(East),shadow:false}),
+    RoofSouthWest: _Tile("RoofSouthWest", {rampdir: South.add(West),shadow:false}),
+  
+
     // Flowing water
-    WaterNew: _Tile("WaterNew", {water:1,shadow:true}),
-    Water: _Tile("Water", {water:1,shadow:true}),
+    WaterNew: _Tile("WaterNew", {water:1,shadow:false}),
+    Water: _Tile("Water", {water:1,shadow:false}),
 
     // Acts like a block - can be stood on - but will disappear in water.
     Washout: _Tile("Washout", {anyFloodable:true}),
@@ -72,7 +82,7 @@ var Tile;
     Exit: _Tile("Exit", {}),
 
     // The player character, in various states
-    Player: _Tile("Player", {anyFloodable:true}),
-    PlayerWon: _Tile("PlayerWon", {anyFloodable:true})
+    Player: _Tile("Player", {anyFloodable:true,shadow:false}),
+    PlayerWon: _Tile("PlayerWon", {anyFloodable:true,shadow:false})
   };  
 })();

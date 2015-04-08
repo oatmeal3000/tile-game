@@ -1,9 +1,14 @@
-function GameState(world, playerPos) {
+function GameState(world, playerPos, pickedStuff) {
   var animationListeners = [];
   var playListeners = [];
-  
-  // Items picked up
-  var inventory = [];
+
+  if(pickedStuff == undefined){
+      // Items picked up
+      inventory = [];
+  }else{
+      inventory = [];
+      extend(inventory, pickedStuff);
+  }
 
   // The positions of tiles which should have gravity applied, after previous actions
   var gravityQueue = [];
@@ -32,11 +37,11 @@ function GameState(world, playerPos) {
 
   function evaluateGameState() {
     var thePlayerTile = world.get(world.getPlayerPos());
-    switch (thePlayerTile) {
-      case Tile.Player:
+    switch (thePlayerTile.toString()) {
+      case "Tile.Player":
         gameStatus = canWin() ? "exitable" : "playing";
         break;
-      case Tile.PlayerWon:
+      case "Tile.PlayerWon":
         gameStatus = "won";
         break;
       default:
@@ -84,12 +89,12 @@ function GameState(world, playerPos) {
       for (var yi = 0; yi < world.yw; yi++) {
         for (var zi = 0; zi < world.zw; zi++) {
           var pos = new IVector(xi, yi, zi);
-          switch (world.get(pos)) {
-            case Tile.WaterNew:
+          switch (world.get(pos).toString()) {
+            case "Tile.WaterNew":
               world.set(pos, Tile.Water);
               needsUpdate = true;
               break;
-            case Tile.Water:
+            case "Tile.Water":
               var belowPos = new IVector(xi, yi, zi - 1);
               var belowTile = world.get(belowPos);
               if (belowTile.isFloodableFrom(Above)) {
@@ -135,7 +140,7 @@ function GameState(world, playerPos) {
   // Don't call this directly, put positions on the GravityQueue.
   function gravity(objectPos) {
     var theTile = world.get(objectPos);
-    if (theTile.isPushable() || theTile.isTakeable() || theTile === Tile.Player) {
+    if (theTile.isPushable() || theTile.isTakeable() || theTile.toString() === "Tile.Player") {
       //console.log("Gravity does apply to " + theTile);
       var belowTile = world.get(objectPos.add(new IVector(0, 0, -1)));
       if (belowTile.canOccupy()) {
@@ -143,11 +148,11 @@ function GameState(world, playerPos) {
           moveObject(objectPos, new IVector(0, 0, -1))
         //)
           ;
-        if (theTile !== Tile.Player && objectPos.z === 0) {
+        if (theTile.toString() !== "Tile.Player" && objectPos.z === 0) {
           // Fall off bottom of world
           world.set(objectPos, Tile.Empty);
         }
-      } else if (belowTile === Tile.Player && theTile.isTakeable()) {
+      } else if (belowTile.toString() === "Tile.Player" && theTile.isTakeable()) {
         take(theTile);
         world.set(objectPos, Tile.Empty);
         gravityQueue.push(objectPos.add(new IVector(0, 0, 1)));
@@ -168,7 +173,7 @@ function GameState(world, playerPos) {
     var newObjectTile = world.get(pos);
 
     // Check the player hasn't been drowned or stomped on
-    if (isMovingPlayer && world.get(pos) !== Tile.Player) {
+    if (isMovingPlayer && world.get(pos).toString() !== "Tile.Player") {
       return "stomped";
     }
 
@@ -183,7 +188,7 @@ function GameState(world, playerPos) {
     if (isMovingPlayer) {
       var hasFloor = false;
       var floorPos = newPos;
-      while (world.get(floorPos) === Tile.Empty) {
+      while (world.get(floorPos).toString() === "Tile.Empty") {
         floorPos = floorPos.add(new IVector(0, 0, -1));
         if (!world.inBounds(floorPos)) {
           return "cliff"; // Nothing to fall onto, you're just not allowed to walk there.
@@ -193,7 +198,7 @@ function GameState(world, playerPos) {
 
     // ...or being occupied.
     var whatsThere = world.get(newPos);
-    if (whatsThere === Tile.Empty) {
+    if (whatsThere.toString() === "Tile.Empty") {
       // proceed
     } else if (whatsThere.isWater()) {
       // will drown or block water - proceed as normal, and RunWater will do what's appropriate.
@@ -203,14 +208,14 @@ function GameState(world, playerPos) {
     } else if (isMovingPlayer && whatsThere.isTakeable()) {
       // In addition to moving, pick up the object.
       take(whatsThere);
-    } else if (isMovingPlayer && whatsThere === Tile.Exit && canWin()) {
+    } else if (isMovingPlayer && whatsThere.toString() === "Tile.Exit" && canWin()) {
       // proceed, will become win
       newObjectTile = Tile.PlayerWon
     } else if (whatsThere.isPushable()) {
       // Pushable object: push it if possible, then proceed
       var res = moveObject(newPos, new IVector(delta.x, delta.y, 0));
       whatsThere = world.get(newPos);
-      if (whatsThere !== Tile.Empty) {
+      if (whatsThere.toString() !== "Tile.Empty") {
         return "push failed("+res+")"; // Still an obstacle
       }
     } else if (whatsThere.canOccupy()) {
@@ -222,8 +227,8 @@ function GameState(world, playerPos) {
     
     // Moving down a ramp, not pushing anything?
     var downward = newPos.add(new IVector(0, 0, -1));
-    if (whatsThere === Tile.Empty 
-        && world.get(downward) === Tile.Empty
+    if (whatsThere.toString() === "Tile.Empty" 
+        && world.get(downward).toString() === "Tile.Empty"
         && world.get(pos.add(new IVector(0, 0, -1))).isRampFor(new IVector(0,0,0).sub(delta))) {
       newPos = downward;
     }
@@ -251,9 +256,9 @@ function GameState(world, playerPos) {
       for (var yi = 0; yi < world.yw; yi++) {
         for (var zi = 0; zi < world.zw; zi++) {
           var pos = new IVector(xi, yi, zi);
-          if (world.get(pos) === fromType) {
+          if (world.get(pos).toString() === fromType.toString()) {
             world.set(pos, toType);
-            if (toType === Tile.Empty) {
+            if (toType.toString() === "Tile.Empty") {
               // Apply gravity to cleared space
               gravity(new IVector(xi, yi, zi + 1));
             }
@@ -320,6 +325,7 @@ function GameState(world, playerPos) {
       thatWhichHappensAfterPlayerAction();
       return res;
     }),
+    getInventory: function () {return inventory;},
     toString: function () { return "[GameState]"; }
   };
 }
